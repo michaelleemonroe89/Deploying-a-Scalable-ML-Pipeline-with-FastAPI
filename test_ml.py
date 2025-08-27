@@ -1,28 +1,39 @@
 import pytest
-# TODO: add necessary import
+import numpy as np
+from ml.model import train_model, inference, compute_model_metrics, save_model, load_model
 
-# TODO: implement the first test. Change the function name and input as needed
-def test_one():
+def test_train_and_inference():
     """
-    # add description for the first test
+    Test that the model can be trained and make predictions of correct shape and type.
     """
-    # Your code here
-    pass
+    X = np.array([[0, 1], [1, 0], [0, 0], [1, 1]])
+    y = np.array([0, 1, 0, 1])
+    model = train_model(X, y)
+    preds = inference(model, X)
+    assert len(preds) == len(y)
+    assert set(preds).issubset({0, 1})
 
+def test_compute_model_metrics():
+    """
+    Test that compute_model_metrics returns values in [0, 1] for valid input.
+    """
+    y_true = np.array([0, 1, 1, 0])
+    y_pred = np.array([0, 1, 0, 0])
+    precision, recall, fbeta = compute_model_metrics(y_true, y_pred)
+    assert 0 <= precision <= 1
+    assert 0 <= recall <= 1
+    assert 0 <= fbeta <= 1
 
-# TODO: implement the second test. Change the function name and input as needed
-def test_two():
+def test_save_and_load_model(tmp_path):
     """
-    # add description for the second test
+    Test that a trained model can be saved and loaded, and predictions remain the same.
     """
-    # Your code here
-    pass
-
-
-# TODO: implement the third test. Change the function name and input as needed
-def test_three():
-    """
-    # add description for the third test
-    """
-    # Your code here
-    pass
+    X = np.array([[0, 1], [1, 0]])
+    y = np.array([0, 1])
+    model = train_model(X, y)
+    file_path = tmp_path / "model.pkl"
+    save_model(model, file_path)
+    loaded_model = load_model(file_path)
+    preds_original = inference(model, X)
+    preds_loaded = inference(loaded_model, X)
+    assert np.array_equal(preds_original, preds_loaded)
