@@ -119,6 +119,9 @@ def performance_on_categorical_slice(
 
     """
     data_slice = data[data[column_name] == slice_value]
+    if data_slice.shape[0] == 0:
+        # No data for this slice, return zeros
+        return 0.0, 0.0, 0.0
     X_slice, y_slice, _, _ = process_data(
         data_slice,
         categorical_features=categorical_features,
@@ -127,6 +130,8 @@ def performance_on_categorical_slice(
         encoder=encoder,
         lb=lb
     )
-    preds = None # your code here to get prediction on X_slice using the inference function
+    if X_slice.shape[0] == 0:
+        return 0.0, 0.0, 0.0
+    preds = inference(model, X_slice)  # your code here to get prediction on X_slice using the inference function
     precision, recall, fbeta = compute_model_metrics(y_slice, preds)
     return precision, recall, fbeta
